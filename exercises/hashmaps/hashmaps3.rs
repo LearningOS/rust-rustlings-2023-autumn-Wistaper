@@ -1,5 +1,3 @@
-#![feature(map_try_insert)]
-
 // hashmaps3.rs
 //
 // A list of scores (one per line) of a soccer match is given. Each line is of
@@ -15,7 +13,6 @@
 //
 // Execute `rustlings hint hashmaps3` or use the `hint` watch subcommand for a
 // hint.
-
 
 use std::collections::HashMap;
 
@@ -35,34 +32,33 @@ fn build_scores_table(results: String) -> HashMap<String, Team> {
         let team_1_score: u8 = v[2].parse().unwrap();
         let team_2_name = v[1].to_string();
         let team_2_score: u8 = v[3].parse().unwrap();
-
-        if scores.try_insert(team_1_name.clone(), Team{
-                goals_scored: team_1_score.clone(),
-                goals_conceded: team_2_score.clone(),
-                }
-            ).is_err() {
-                if let Some(x) = scores.get_mut(&team_1_name) {
-                    x.goals_conceded += team_2_score;
-                    x.goals_scored += team_1_score;
-                }
-        }
-        if scores.try_insert(team_2_name.clone(), Team{
-                goals_scored: team_2_score.clone(),
-                goals_conceded: team_1_score.clone(),
-                }
-            ).is_err() {
-                if let Some(x) = scores.get_mut(&team_2_name) {
-                    x.goals_conceded += team_1_score;
-                    x.goals_scored += team_2_score;
-                }
-        }
-
-        // };
         // TODO: Populate the scores table with details extracted from the
         // current line. Keep in mind that goals scored by team_1
         // will be the number of goals conceded from team_2, and similarly
         // goals scored by team_2 will be the number of goals conceded by
-        // team_1.
+        // team_1. 
+        if scores.contains_key(&team_1_name){
+            let Some(x) = scores.get_mut(&team_1_name) else { break;};
+            x.goals_scored += team_1_score;
+            x.goals_conceded += team_2_score;
+        }
+        if scores.contains_key(&team_2_name){
+            let Some(x) = scores.get_mut(&team_2_name) else { break;};
+            x.goals_scored += team_2_score;
+            x.goals_conceded += team_1_score;
+        }
+
+        scores.entry(team_1_name).or_insert(Team{
+            goals_scored:team_1_score,
+            goals_conceded:team_2_score,
+        });
+        scores.entry(team_2_name).or_insert(Team{
+            goals_scored:team_2_score,
+            goals_conceded:team_1_score,
+        });
+        
+    
+    
     }
     scores
 }
